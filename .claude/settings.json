@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash arcads/shared/scripts/sync-skill.sh >/dev/null 2>&1 || true" },
+          { "type": "command", "command": "bash arcads/shared/scripts/check-context.sh || true" }
+        ]
+      }
+    ]
+  }
+}
