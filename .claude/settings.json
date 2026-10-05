@@ -1,10 +1,29 @@
 {
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(sudo *)",
+      "Bash(chmod 777 *)",
+      "Bash(chmod -R 777 *)",
+      "Bash(ssh *)",
+      "Bash(*> /dev/sd*)",
+      "Bash(*> /dev/nvme*)",
+      "Bash(*> /dev/disk*)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "bash arcads/shared/scripts/sync-skill.sh >/dev/null 2>&1 || true" },
-          { "type": "command", "command": "bash arcads/shared/scripts/check-context.sh || true" }
+          {
+            "type": "command",
+            "command": "bash arcads/shared/scripts/sync-skill.sh >/dev/null 2>&1 || true"
+          },
+          {
+            "type": "command",
+            "command": "bash arcads/shared/scripts/check-context.sh || true"
+          }
         ]
       }
     ]
