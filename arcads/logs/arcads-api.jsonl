@@ -65,3 +65,5 @@
 {"ts":"2026-10-09T09:45:14Z","tool":"generate_image_nano_banana","model":"nano-banana-2-1","resolution":"4K","purpose":"benny-ep1 character sheet","assetId":"5e320f32-6768-43b8-97a5-8b0b41cfb3ab"}
 {"ts":"2026-10-09T09:48:40Z","tool":"generate_image_nano_banana","model":"nano-banana-2-1","resolution":"1K","purpose":"benny-ep1 shot03 start frame","assetId":"85188306-49bf-4e33-9835-f5d78a4cbd08","creditsCharged":16}
 {"ts":"2026-10-09T09:49:16Z","tool":"generate_video_kling_30_pro","duration":12,"purpose":"benny-ep1 shot03 test clip","assetId":"77f51e98-017d-44f7-9935-79bc3652145a","creditsCharged":152}
+{"ts":"2026-10-09T09:55:53Z","tool":"generate_video_minimax_h3","model":"minimax_h3","duration":8,"resolution":"720p","purpose":"benny-ep1 shot02 gigi hello","assetId":"c5681e48-1688-4f9f-8d3e-8ddf222b33f5","creditsCharged":48}
+{"ts":"2026-10-09T09:55:53Z","tool":"generate_video_minimax_h3","model":"minimax_h3","duration":14,"resolution":"720p","purpose":"benny-ep1 shot04-05 friends arrive + nope","assetId":"46d16c89-e611-4732-8cab-b799441bc276","creditsCharged":84}
