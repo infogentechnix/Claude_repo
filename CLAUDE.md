@@ -12,3 +12,7 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 ## Kimi K3
 
 `kimi/kimi_k3.py` calls `moonshotai/kimi-k3` on NVIDIA's API; it reads `NVIDIA_API_KEY` from the environment or `kimi/.env`.
+
+## OpenRouter free models
+
+`openrouter/free-models.md` is a reference list of OpenRouter's `:free` models, rate limits and deprecations (from gist rlnorthcutt/e6f392cd1ffb1339cc42dfb024c3cf7f). Several models listed there were slated for deprecation in July 2026; check https://openrouter.ai/models before relying on one.
