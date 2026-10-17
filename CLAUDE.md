@@ -18,3 +18,10 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 `openrouter/free-models.md` is a reference list of OpenRouter's `:free` models, rate limits and deprecations (from gist rlnorthcutt/e6f392cd1ffb1339cc42dfb024c3cf7f). Several models listed there were slated for deprecation in July 2026; check https://openrouter.ai/models before relying on one.
 
 `openrouter/openrouter_chat.py` calls OpenRouter's chat API (default model `openrouter/free`, override with `--model`); it reads `OPENROUTER_API_KEY` from the environment or `openrouter/.env`.
+
+## GSD Core
+
+GSD Core 1.16.0 (open-gsd/gsd-core, MIT) is installed project-locally in `.claude/` (agents, `/gsd-*` commands, `gsd-core/`, hooks wired in `.claude/settings.local.json`).
+
+- Start with `/gsd-onboard` (existing code) or `/gsd-new-project`; `/gsd-health` checks the install.
+- Reinstall/upgrade from the repo root: `npx @opengsd/gsd-core@latest --claude --local`. Installed files contain absolute `/home/user/Claude_repo` paths.
