@@ -18,3 +18,7 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 `openrouter/free-models.md` is a reference list of OpenRouter's `:free` models, rate limits and deprecations (from gist rlnorthcutt/e6f392cd1ffb1339cc42dfb024c3cf7f). Several models listed there were slated for deprecation in July 2026; check https://openrouter.ai/models before relying on one.
 
 `openrouter/openrouter_chat.py` calls OpenRouter's chat API (default model `openrouter/free`, override with `--model`); it reads `OPENROUTER_API_KEY` from the environment or `openrouter/.env`.
+
+## Agent Skills (engineering workflows)
+
+`.claude/skills/` also holds the 25 engineering skills from addyosmani/agent-skills (MIT, v0.6.13; license in `.claude/references/AGENT-SKILLS-LICENSE`): spec, planning, TDD, code review, security, performance, shipping, etc. Start with `using-agent-skills` to pick one. Shared checklists live in `.claude/references/`, and the `code-reviewer`, `security-auditor`, `test-engineer` and `web-performance-auditor` subagents in `.claude/agents/`. The upstream slash commands and hooks were not vendored (`/review` clashes with the built-in); to get them, install the plugin with `/plugin marketplace add addyosmani/agent-skills` then `/plugin install agent-skills@addy-agent-skills`.
