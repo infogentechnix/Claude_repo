@@ -32,7 +32,7 @@ GSD Core 1.16.0 (open-gsd/gsd-core, MIT) is installed project-locally in `.claud
 
 ## graphify
 
-graphify 0.9.97 (Graphify-Labs/graphify, Apache-2.0) is installed project-locally: skill in `.claude/skills/graphify/`, PreToolUse hooks in `.claude/settings.json`. The CLI is not vendored; in a fresh session run `uv tool install graphifyy`, then `graphify update .` to rebuild `graphify-out/` (gitignored).
+graphify 0.9.97 (Graphify-Labs/graphify, Apache-2.0) is installed project-locally: skill in `.claude/skills/graphify/`, PreToolUse hooks in `.claude/settings.json`. The CLI is not vendored; a SessionStart hook installs it with `uv tool install graphifyy` when missing. Run `graphify update .` to rebuild `graphify-out/` (gitignored).
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
 
