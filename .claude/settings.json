@@ -18,11 +18,38 @@
         "hooks": [
           {
             "type": "command",
+            "command": "command -v graphify >/dev/null 2>&1 || uv tool install graphifyy >/dev/null 2>&1 || true",
+            "timeout": 300
+          },
+          {
+            "type": "command",
             "command": "bash arcads/shared/scripts/sync-skill.sh >/dev/null 2>&1 || true"
           },
           {
             "type": "command",
             "command": "bash arcads/shared/scripts/check-context.sh || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "graphify hook-guard search",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "graphify hook-guard read",
+            "timeout": 10
           }
         ]
       }
