@@ -42,3 +42,11 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
+
+## ECC (Everything Claude Code)
+
+ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installer (`install.sh --target claude-project --profile full --enable-hooks`), the equivalent of `/plugin install ecc@ecc` where `/plugin` is unavailable. It added flat skills in `.claude/skills/`, agents in `.claude/agents/`, commands in `.claude/commands/`, rules in `.claude/rules/ecc/`, hook scripts in `.claude/scripts/`, and hooks merged into `.claude/settings.json`. Install state is in `.claude/ecc/install-state.json`.
+
+- The existing `.claude/agents/code-reviewer.md` (agent-skills) was kept; ECC skipped its own copy.
+- Hook commands contain absolute `/home/user/Claude_repo` paths.
+- From an ECC checkout: `node scripts/ecc.js doctor --target claude-project` checks the install; `repair` and `uninstall` manage it. Use `/configure-ecc` to change the hook profile.
