@@ -78,7 +78,7 @@ class RegistrationValidatorTest : FunSpec({
         val request = RegistrationRequest(
             name = "Alice",
             email = "alice@example.com",
-            password = "SecureP@ss1",
+            password = "example-not-a-secret",
         )
 
         val result = validateRegistration(request)
@@ -90,7 +90,7 @@ class RegistrationValidatorTest : FunSpec({
         val request = RegistrationRequest(
             name = "",
             email = "alice@example.com",
-            password = "SecureP@ss1",
+            password = "example-not-a-secret",
         )
 
         val result = validateRegistration(request)
@@ -103,7 +103,7 @@ class RegistrationValidatorTest : FunSpec({
         val request = RegistrationRequest(
             name = "Alice",
             email = "not-an-email",
-            password = "SecureP@ss1",
+            password = "example-not-a-secret",
         )
 
         val result = validateRegistration(request)

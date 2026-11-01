@@ -50,3 +50,8 @@ ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installe
 - The existing `.claude/agents/code-reviewer.md` (agent-skills) was kept; ECC skipped its own copy.
 - Hook commands contain absolute `/home/user/Claude_repo` paths.
 - From an ECC checkout: `node scripts/ecc.js doctor --target claude-project` checks the install; `repair` and `uninstall` manage it. Use `/configure-ecc` to change the hook profile.
+- Local hardening on top of the upstream install:
+  - `env.ECC_SKIP_LLM_SUMMARY=1` in `.claude/settings.json` stops the Stop hook from spawning `claude -p` to summarise the transcript.
+  - The installer's `includeCoAuthoredBy: false` was removed so commit attribution is unchanged.
+  - Example credentials in `.claude/commands/{kotlin-test,rust-test,update-docs}.md` were replaced with obvious placeholders. Because of this, `doctor` reports these 3 files as drifted (expected), and `repair` would restore the upstream text.
+- The GateGuard hook denies the first Edit/Write of each file in a session and asks for facts first; the retry goes through. To skip it, set `ECC_GATEGUARD=off` or add a glob to `GATEGUARD_EXEMPT_GLOBS`.
