@@ -45,13 +45,21 @@ Rules:
 
 ## ECC (Everything Claude Code)
 
-ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installer (`install.sh --target claude-project --profile full --enable-hooks`), the equivalent of `/plugin install ecc@ecc` where `/plugin` is unavailable. It added flat skills in `.claude/skills/`, agents in `.claude/agents/`, commands in `.claude/commands/`, rules in `.claude/rules/ecc/`, hook scripts in `.claude/scripts/`, and hooks merged into `.claude/settings.json`. Install state is in `.claude/ecc/install-state.json`.
+ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installer, trimmed to this repo's stack with the `agent-sort` skill. `/plugin` is unavailable here, so this replaces `/plugin install ecc@ecc`. Install state is in `.claude/ecc/install-state.json`.
 
-- The existing `.claude/agents/code-reviewer.md` (agent-skills) was kept; ECC skipped its own copy.
-- Hook commands contain absolute `/home/user/Claude_repo` paths.
-- From an ECC checkout: `node scripts/ecc.js doctor --target claude-project` checks the install; `repair` and `uninstall` manage it. Use `/configure-ecc` to change the hook profile.
-- Local hardening on top of the upstream install:
+- **DAILY (installed, loaded every session):**
+  - ECC modules `rules-core`, `hooks-runtime`, `platform-configs` and `shared-script-utils`: rules in `.claude/rules/ecc/`, hook scripts in `.claude/scripts/`, and hooks merged into `.claude/settings.json`.
+  - 15 skills: agent-sort, configure-ecc, ecc-guide, skill-stocktake, context-budget, gateguard, security-scan, python-patterns, python-testing, api-connector-builder, cost-aware-llm-pipeline, content-engine, marketing-campaign, brand-voice, video-editing.
+  - Install command, run from an ECC checkout at the repo root: `install.sh --target claude-project --modules rules-core,hooks-runtime,platform-configs,shared-script-utils --skills agent-sort,configure-ecc,ecc-guide,skill-stocktake,context-budget,gateguard,security-scan,python-patterns,python-testing,api-connector-builder,cost-aware-llm-pipeline,content-engine,marketing-campaign,brand-voice,video-editing --enable-hooks`.
+- **DAILY agents:** `python-reviewer` and `marketing-agent` are plain copies in `.claude/agents/`. ECC can only install agents as one 70-agent module, so these two are not ECC-managed.
+- **LIBRARY (kept, not loaded):** the other 299 ECC skills, 68 agents and 98 commands are in `.claude/skill-library/`. The `skill-library` router skill lists them by area and explains how to use one or promote it to DAILY.
+  - Several library entries overlap with skills that are already installed, for example `tdd-workflow`, `git-workflow`, `security-review`, `deep-research`, `api-design` and the `/code-review` and `/plan` commands. The agent-skills pack, the built-in skills or GSD cover those.
+  - `strategic-compact` was left in the library on purpose: ECC files it under the whole `workflow-quality` module, so installing it pulls in 51 other skills.
+- **Rules:** `rules-core` installs every language rule pack. They are path-scoped, so only `common/` and the packs matching edited files, such as `python/`, load.
+- **Hook commands** contain absolute `/home/user/Claude_repo` paths.
+- **Managing the install** (from an ECC checkout): `node scripts/ecc.js doctor --target claude-project` checks it; `repair` and `uninstall` manage it. Re-running the installer does not remove skills dropped from the selection. To change the selection, run `uninstall`, delete `.claude/ecc/install-state.json`, then reinstall.
+- **Local hardening:**
   - `env.ECC_SKIP_LLM_SUMMARY=1` in `.claude/settings.json` stops the Stop hook from spawning `claude -p` to summarise the transcript.
-  - The installer's `includeCoAuthoredBy: false` was removed so commit attribution is unchanged.
-  - Example credentials in `.claude/commands/{kotlin-test,rust-test,update-docs}.md` were replaced with obvious placeholders. Because of this, `doctor` reports these 3 files as drifted (expected), and `repair` would restore the upstream text.
-- The GateGuard hook denies the first Edit/Write of each file in a session and asks for facts first; the retry goes through. To skip it, set `ECC_GATEGUARD=off` or add a glob to `GATEGUARD_EXEMPT_GLOBS`.
+  - Remove the `includeCoAuthoredBy: false` setting that the installer adds on every install, so commit attribution is unchanged.
+  - The library copies of `kotlin-test`, `rust-test` and `update-docs` contain no literal example credentials.
+- **GateGuard:** the hook denies the first Edit/Write of each file in a session and asks for facts first; the retry goes through. To skip it, set `ECC_GATEGUARD=off` or add a glob to `GATEGUARD_EXEMPT_GLOBS`.
