@@ -40,7 +40,7 @@ Sync documentation with the codebase, generating from source-of-truth files.
 ```markdown
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string | `postgres://<user>:<password>@<host>:5432/<db>` |
+| `DATABASE_URL` | Yes | PostgreSQL connection string | `postgres://db.example.com:5432/app` (credentials via `PGUSER`/`PGPASSWORD`) |
 | `LOG_LEVEL` | No | Logging verbosity (default: info) | `debug`, `info`, `warn`, `error` |
 ```
 

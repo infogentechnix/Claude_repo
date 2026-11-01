@@ -73,7 +73,7 @@ mod tests {
         let request = RegistrationRequest {
             name: "Alice".into(),
             email: "alice@example.com".into(),
-            password: "example-not-a-secret".into(),
+            password: "x".repeat(12),
         };
         assert!(matches!(validate_registration(&request), ValidationResult::Valid));
     }
@@ -83,7 +83,7 @@ mod tests {
         let request = RegistrationRequest {
             name: "".into(),
             email: "alice@example.com".into(),
-            password: "example-not-a-secret".into(),
+            password: "x".repeat(12),
         };
         match validate_registration(&request) {
             ValidationResult::Invalid(errors) => {
@@ -98,7 +98,7 @@ mod tests {
         let request = RegistrationRequest {
             name: "Alice".into(),
             email: "not-an-email".into(),
-            password: "example-not-a-secret".into(),
+            password: "x".repeat(12),
         };
         assert!(matches!(
             validate_registration(&request),
@@ -111,7 +111,7 @@ mod tests {
         let request = RegistrationRequest {
             name: "Alice".into(),
             email: "alice@example.com".into(),
-            password: "short".into(),
+            password: "x".repeat(5),
         };
         assert!(matches!(
             validate_registration(&request),
