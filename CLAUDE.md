@@ -63,3 +63,16 @@ ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installe
   - Remove the `includeCoAuthoredBy: false` setting that the installer adds on every install, so commit attribution is unchanged.
   - The library copies of `kotlin-test`, `rust-test` and `update-docs` contain no literal example credentials.
 - **GateGuard:** the hook denies the first Edit/Write of each file in a session and asks for facts first; the retry goes through. To skip it, set `ECC_GATEGUARD=off` or add a glob to `GATEGUARD_EXEMPT_GLOBS`.
+
+## Google Maps Scraper
+
+gosom/google-maps-scraper is cloned locally into `google-maps-scraper/` (gitignored, not vendored). In a new session, run:
+
+```
+scripts/setup-google-maps-scraper.sh
+```
+
+It is safe to rerun: it clones only if the folder is missing, rebuilds only when the binary is older than the clone's HEAD (with `GOTOOLCHAIN=auto`, since go.mod needs a newer Go than the image ships), and links the preinstalled browsers in `/opt/pw-browsers` into `~/.cache/ms-playwright` under the revision the scraper's Playwright driver expects, because the Playwright CDN is blocked here. Pass `--update` to pull the latest scraper first, or `--no-build` to refresh only the browser links.
+
+- Run with `PLAYWRIGHT_BROWSERS_PATH=$HOME/.cache/ms-playwright google-maps-scraper/google-maps-scraper -input queries.txt -results results.csv -depth 1 -exit-on-inactivity 3m`.
+- The environment's network policy must allow `www.google.com`.

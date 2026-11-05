@@ -3,3 +3,6 @@
 
 # graphify knowledge graph (rebuild with `graphify update .`)
 graphify-out/
+
+# gosom/google-maps-scraper local clone (see CLAUDE.md)
+google-maps-scraper/
