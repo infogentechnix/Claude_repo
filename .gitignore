@@ -3,3 +3,8 @@
 
 # graphify knowledge graph (rebuild with `graphify update .`)
 graphify-out/
+
+# MiroFish install (recreated by mirofish/setup.sh on SessionStart)
+mirofish/app/
+mirofish/install.log
+mirofish/.install.lock
