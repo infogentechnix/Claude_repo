@@ -66,9 +66,13 @@ ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installe
 
 ## Google Maps Scraper
 
-gosom/google-maps-scraper is cloned locally into `google-maps-scraper/` (gitignored, not vendored). To set it up in a new session:
+gosom/google-maps-scraper is cloned locally into `google-maps-scraper/` (gitignored, not vendored). In a new session, run:
 
-- Clone and build: `git clone --depth 1 https://github.com/gosom/google-maps-scraper.git && cd google-maps-scraper && GOTOOLCHAIN=auto go build -o google-maps-scraper .` (it needs Go 1.27.1, which `GOTOOLCHAIN=auto` downloads).
-- The Playwright CDN is blocked here, so link the preinstalled browsers: `mkdir -p ~/.cache/ms-playwright && for d in chromium chromium_headless_shell; do ln -sfn /opt/pw-browsers/${d}-1243 ~/.cache/ms-playwright/${d}-1228; done && ln -sfn /opt/pw-browsers/ffmpeg-1011 ~/.cache/ms-playwright/ffmpeg-1011`.
-- Run with `PLAYWRIGHT_BROWSERS_PATH=$HOME/.cache/ms-playwright ./google-maps-scraper -input queries.txt -results results.csv -depth 1 -exit-on-inactivity 3m`.
+```
+scripts/setup-google-maps-scraper.sh
+```
+
+It is safe to rerun: it clones only if the folder is missing, rebuilds only when the binary is older than the clone's HEAD (with `GOTOOLCHAIN=auto`, since go.mod needs a newer Go than the image ships), and links the preinstalled browsers in `/opt/pw-browsers` into `~/.cache/ms-playwright` under the revision the scraper's Playwright driver expects, because the Playwright CDN is blocked here. Pass `--update` to pull the latest scraper first, or `--no-build` to refresh only the browser links.
+
+- Run with `PLAYWRIGHT_BROWSERS_PATH=$HOME/.cache/ms-playwright google-maps-scraper/google-maps-scraper -input queries.txt -results results.csv -depth 1 -exit-on-inactivity 3m`.
 - The environment's network policy must allow `www.google.com`.
