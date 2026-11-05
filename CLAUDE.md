@@ -19,6 +19,15 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 
 `openrouter/openrouter_chat.py` calls OpenRouter's chat API (default model `openrouter/free`, override with `--model`); it reads `OPENROUTER_API_KEY` from the environment or `openrouter/.env`.
 
+## MiroFish (swarm-intelligence prediction engine)
+
+MiroFish (666ghj/MiroFish, AGPL-3.0) is not vendored. The SessionStart hook runs `bash mirofish/setup.sh --bg`, which clones it into `mirofish/app/` (gitignored) and installs its npm and `uv` deps, in the background, only when `mirofish/app/.mirofish-installed` is missing. Progress goes to `mirofish/install.log`.
+
+- Install now / wait for it: `bash mirofish/setup.sh` (foreground, no-op when done). Reinstall: `bash mirofish/setup.sh --force`. Pin a version with `MIROFISH_REF=<tag>`.
+- Config: copy `mirofish/.env.example` to `mirofish/.env` (gitignored) and fill in `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL_NAME` and `ZEP_API_KEY`; setup symlinks it to `mirofish/app/.env`. Or set those as environment variables / cloud environment secrets.
+- Run: `cd mirofish/app && npm run dev` starts the Flask backend (port 5001, `FLASK_PORT`) and the Vite frontend together. `npm run backend` / `npm run frontend` run one side. The backend exits at startup if `LLM_API_KEY` or `ZEP_API_KEY` is missing, and `--kill-others` then stops the frontend too. In headless sessions Vite logs a harmless `spawn xdg-open ENOENT` when it tries to open a browser.
+- The backend needs Python 3.11 or 3.12; `uv` downloads 3.12 if the system Python is newer.
+
 ## Agent Skills (engineering workflows)
 
 `.claude/skills/` also holds the 25 engineering skills from addyosmani/agent-skills (MIT, v0.6.13; license in `.claude/references/AGENT-SKILLS-LICENSE`): spec, planning, TDD, code review, security, performance, shipping, etc. Start with `using-agent-skills` to pick one. Shared checklists live in `.claude/references/`, and the `code-reviewer`, `security-auditor`, `test-engineer` and `web-performance-auditor` subagents in `.claude/agents/`. The upstream slash commands and hooks were not vendored (`/review` clashes with the built-in); to get them, install the plugin with `/plugin marketplace add addyosmani/agent-skills` then `/plugin install agent-skills@addy-agent-skills`.
