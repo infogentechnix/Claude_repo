@@ -19,6 +19,15 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 
 `openrouter/openrouter_chat.py` calls OpenRouter's chat API (default model `openrouter/free`, override with `--model`); it reads `OPENROUTER_API_KEY` from the environment or `openrouter/.env`.
 
+## Lemo-Opuscar (code-rendered films)
+
+The `lemo-opuscar` skill (lemomo-ai/lemo-opuscar, MIT, commit 5c05490) is vendored in `.claude/skills/lemo-opuscar/`. It stands in for `claude plugin install lemo-opuscar@lemolab`, because `/plugin` does not work in this environment.
+
+- On first use, `sh .claude/skills/lemo-opuscar/scripts/setup.sh` clones the style library to `~/lemo-opuscar` (not committed: about 190 MB). `setup.sh deps [voice] [music]` installs the packages it needs.
+- It needs ffmpeg 7+ and ffprobe; the container ships 6.1. Install 7.1 from nixpkgs, which puts both ahead of `/usr/bin` on `PATH`: `nix --extra-experimental-features 'nix-command flakes' profile install nixpkgs#ffmpeg_7`. A fresh container needs this again. The static build the upstream README suggests (johnvansickle.com) is blocked by the network policy.
+- Each film's project goes in a `<name>/` folder in the directory the skill was started from.
+- The narration check (`core/tts/asr_check.py`) downloads Whisper from Hugging Face. The Claude_repo environment allows `huggingface.co` and its CDN `us.aws.cdn.hf.co` but not the Xet storage hosts, so run it with `HF_HUB_DISABLE_XET=1`.
+
 ## Agent Skills (engineering workflows)
 
 `.claude/skills/` also holds the 25 engineering skills from addyosmani/agent-skills (MIT, v0.6.13; license in `.claude/references/AGENT-SKILLS-LICENSE`): spec, planning, TDD, code review, security, performance, shipping, etc. Start with `using-agent-skills` to pick one. Shared checklists live in `.claude/references/`, and the `code-reviewer`, `security-auditor`, `test-engineer` and `web-performance-auditor` subagents in `.claude/agents/`. The upstream slash commands and hooks were not vendored (`/review` clashes with the built-in); to get them, install the plugin with `/plugin marketplace add addyosmani/agent-skills` then `/plugin install agent-skills@addy-agent-skills`.
