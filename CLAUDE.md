@@ -26,6 +26,7 @@ The `lemo-opuscar` skill (lemomo-ai/lemo-opuscar, MIT, commit 5c05490) is vendor
 - On first use, `sh .claude/skills/lemo-opuscar/scripts/setup.sh` clones the style library to `~/lemo-opuscar` (not committed: about 190 MB). `setup.sh deps [voice] [music]` installs the packages it needs.
 - It needs ffmpeg 7+ and ffprobe; the container ships 6.1. Install 7.1 from nixpkgs, which puts both ahead of `/usr/bin` on `PATH`: `nix --extra-experimental-features 'nix-command flakes' profile install nixpkgs#ffmpeg_7`. A fresh container needs this again. The static build the upstream README suggests (johnvansickle.com) is blocked by the network policy.
 - Each film's project goes in a `<name>/` folder in the directory the skill was started from.
+- The narration check (`core/tts/asr_check.py`) downloads Whisper from Hugging Face. The Claude_repo environment allows `huggingface.co` and its CDN `us.aws.cdn.hf.co` but not the Xet storage hosts, so run it with `HF_HUB_DISABLE_XET=1`.
 
 ## Agent Skills (engineering workflows)
 
