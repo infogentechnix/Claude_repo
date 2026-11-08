@@ -24,7 +24,7 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 The `lemo-opuscar` skill (lemomo-ai/lemo-opuscar, MIT, commit 5c05490) is vendored in `.claude/skills/lemo-opuscar/`. It stands in for `claude plugin install lemo-opuscar@lemolab`, because `/plugin` does not work in this environment.
 
 - On first use, `sh .claude/skills/lemo-opuscar/scripts/setup.sh` clones the style library to `~/lemo-opuscar` (not committed: about 190 MB). `setup.sh deps [voice] [music]` installs the packages it needs.
-- It needs ffmpeg 7+. The container ships 6.1, so rendering fails until a newer ffmpeg is on `PATH`.
+- It needs ffmpeg 7+ and ffprobe; the container ships 6.1. Install 7.1 from nixpkgs, which puts both ahead of `/usr/bin` on `PATH`: `nix --extra-experimental-features 'nix-command flakes' profile install nixpkgs#ffmpeg_7`. A fresh container needs this again. The static build the upstream README suggests (johnvansickle.com) is blocked by the network policy.
 - Each film's project goes in a `<name>/` folder in the directory the skill was started from.
 
 ## Agent Skills (engineering workflows)
