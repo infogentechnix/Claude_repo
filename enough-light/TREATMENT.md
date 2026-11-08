@@ -34,10 +34,10 @@ Topic from the brief: *the power of a prayer, which can make you happy at the en
 | # | Time | Framing / angle | Camera | Why |
 |---|---|---|---|---|
 | 1 | 0.0–5.5 | Insert, flat on the paper | Locked sheet, very slow push (2 %) | The hook: blank paper and a hand writing *"Too heavy today."* in blue-grey ink; rain-blue drops fall onto the paper around it. Words before the image make us read the feeling first. |
-| 2 | 5.5–11.0 | Medium-wide, eye level: a stone step, a lamp post, rain, the woman seated, head bowed | Brush-edge wipe in, then slow push in | She paints in stroke by stroke, structure first (step → body → coat → hair). Small in a big grey sheet: alone. |
+| 2 | 5.5–11.0 | Medium-wide, eye level: a stone step, a lamp post, rain, the woman seated, head bowed | Continuous pull-back from the note as the street paints in, then slow push in | She paints in stroke by stroke, structure first (step → body → coat → hair). Small in a big grey sheet: alone. |
 | 3 | 11.0–17.0 | Close insert on her folded hands and lowered face | Slow push into the detail | The observer leans in. A single point of warm gold (the accent) blooms between her hands, like wet pigment touching wet paper. |
 | 4 | 17.0–23.0 | Pull back from close to wide, through the same scene | Continuous pull-back | **The native move, at the peak:** the warm wash spreads outward from her hands and re-colours the painted world, blue-grey → peach → gold, in quantised bands (5 steps, so it reads as paint). On the downbeat of bar 7 every raindrop on the page bursts into a small blossom. |
-| 5 | 23.0–30.0 | Medium-wide, eye level: she stands, face lifted, smiling; a pale sun painted in behind | Locked, then still | The new world held. The opening line *"Too heavy today."* mist-erases and *"Lighter now."* writes itself in warm ink in its place. The brush lifts before the last stroke ends. |
+| 5 | 23.0–30.0 | Medium-wide, eye level: she stands, face lifted, smiling; a pale sun painted in behind; then close on her face | Locked, then a slow push in on her smile (28.2–29.6 s) and hold | The new world held. The opening line *"Too heavy today."* mist-erases and *"Lighter now."* writes itself in warm ink in its place (26.0 s); the brush lifts before the last stroke ends; the camera leans in until her closed eyes and smile fill the frame (the push-in asked for at storyboard review). |
 
 ## 5. Beat sheet
 

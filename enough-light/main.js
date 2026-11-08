@@ -15,9 +15,10 @@ const T = {
   burst: bar(7),                         // 20.0: raindrops become blossoms
   stand: [bar(8) - 0.3, bar(8) + 1.2],   // 23.0 → 24.5: she stands
   sun: [22.4, 24.2],
-  erase1: [26.3, 27.0],
-  write2: [bar(9), bar(9) + 1.5],        // 26.67 → 28.17: "Lighter now."
-  lift: [28.3, 29.3],                    // the last stroke, left unfinished
+  erase1: [25.5, 26.1],
+  write2: [26.0, 27.3],                  // "Lighter now."
+  lift: [27.4, 28.2],                    // the last stroke, left unfinished
+  push: [28.2, 29.6],                    // close on her smile
 };
 const VO = [
   { id: 'v1', t: 1.0, d: 3.005, text: 'Some days, the weight is too heavy to carry alone.' },
@@ -44,7 +45,7 @@ const NOTE = { x: 1250, y: 300, size: 64 }, SUN = [800, 215];
 const CAM_KEYS = [
   [0, 1440, 300, 2.4], [4.8, 1440, 300, 2.5], [8.6, 1010, 560, 1.12], [10.8, 1000, 590, 1.3],
   [12.6, 975, 640, 2.7], [16.6, 970, 635, 2.9], [22.4, 960, 540, 1.0], [23.4, 960, 540, 1.0],
-  [25.6, 1150, 430, 1.75], [30, 1150, 425, 1.8],
+  [25.6, 1150, 430, 1.75], [28.2, 1140, 428, 1.8], [29.6, 985, 292, 3.15], [30, 985, 292, 3.2],
 ];
 const camX = monotone(CAM_KEYS.map(k => [k[0], k[1]])), camY = monotone(CAM_KEYS.map(k => [k[0], k[2]]));
 const camZ = monotone(CAM_KEYS.map(k => [k[0], k[3]]));
@@ -63,13 +64,16 @@ function buildBG(P) {
   withSeed(102, () => {
     let x = -60;
     while (x < 2000) {
-      const bw = rnd(110, 210), top = rnd(400, 560), col = rnd() < .5 ? P.bld : P.bld2;
-      for (let xx = x; xx < x + bw; xx += 20) G.bld.push(mk(qcurve(xx, 745, xx + rnd(-3, 3), top + rnd(-6, 6), rnd(-4, 4), 10), 28, col, { prof: 'even', nb: 3, a: rnd(.26, .36), rough: .25 }));
-      for (let k = 0; k < 5; k++) {
-        const wx = x + rnd(18, bw - 18), wy = rnd(top + 30, 700);
-        G.bld.push(mk(qcurve(wx, wy, wx, wy + 18, 0, 4), 9, P.bld2, { prof: 'even', nb: 0, a: .35 }));
+      const bw = rnd(120, 240), top = rnd(380, 580), col = rnd() < .5 ? P.bld : P.bld2;
+      for (let yy = 735; yy > top; yy -= 30) G.bld.push(mk(qcurve(x, yy, x + bw, yy + rnd(-3, 3), rnd(-3, 3), 10), 40, col, { prof: 'even', nb: 4, a: rnd(.18, .26), rough: .3 }));
+      G.bld.push(mk(qcurve(x - 6, top, x + bw + 6, top + rnd(-4, 4), rnd(-2, 2), 10), 9, P.bld2, { prof: 'even', nb: 2, a: .32 }));
+      const cols = Math.max(2, Math.floor(bw / 44)), rows = Math.floor((700 - top) / 56);
+      for (let r = 0; r < rows; r++) for (let k = 0; k < cols; k++) {
+        if (rnd() < .35) continue;
+        const wx = x + (k + .5) * bw / cols, wy = top + 34 + r * 56;
+        G.bld.push(mk(qcurve(wx, wy, wx + rnd(-1, 1), wy + 20, 0, 4), 12, P.bld2, { prof: 'even', nb: 0, a: rnd(.22, .34) }));
       }
-      x += bw + rnd(10, 60);
+      x += bw + rnd(20, 70);
     }
     G.bld.push(mk(qcurve(-120, 712, 2040, 708, 6, 30), 70, PAPER, { prof: 'even', nb: 5, a: .55, rough: .35 }));   // mist band
   });
@@ -382,6 +386,7 @@ function buildEvents() {
   EV.push({ t: T.erase1[0], type: 'mist', d: .7 }, { t: T.write2[0], type: 'pencil', d: T.write2[1] - T.write2[0], pan: .4 });
   EV.push({ t: T.lift[0], type: 'brush', d: 1.0, pan: .3 });
   for (const v of VO) EV.push({ t: v.t, type: 'vo', id: v.id });
+  for (const s of SUBS) EV.push({ t: s.t0, type: 'sub', t0: s.t0, t1: s.t1, text: s.text });
   EV.push({ t: 0, type: 'grid', bpm: BPM, bars: 9 });
   return EV.sort((a, b) => a.t - b.t);
 }
@@ -393,7 +398,7 @@ function buildEvents() {
   SEAT_C = buildSeated(COLD); SEAT_W = buildSeated(WARM); STAND_W = buildStanding(WARM);
   SPR.bgC = bgSprite(BG_C); SPR.bgW = bgSprite(BG_W);
   SPR.baseC = spriteAt(SEAT_C.base, 3); SPR.sitC = spriteAt(SEAT_C.armsSit, 3); SPR.prayC = spriteAt(SEAT_C.armsPray, 3);
-  SPR.baseW = spriteAt(SEAT_W.base, 3); SPR.prayW = spriteAt(SEAT_W.armsPray, 3); SPR.standW = spriteAt(STAND_W, 2.5);
+  SPR.baseW = spriteAt(SEAT_W.base, 3); SPR.prayW = spriteAt(SEAT_W.armsPray, 3); SPR.standW = spriteAt(STAND_W, 4);
   buildRainAndSpots(); buildLight();
   ctx.font = `600 ${NOTE.size}px Caveat`;
   const lw = ctx.measureText('Lighter now.').width;

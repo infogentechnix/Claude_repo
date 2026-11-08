@@ -1,0 +1,24 @@
+Enough Light — third-party assets and licences
+==============================================
+
+Original film: story, picture, score and sound design written in code for this project.
+Visual style: "Watercolor Brush" from the Lemo-Opuscar style library (lemomo-ai/lemo-opuscar, MIT);
+engine.js and paper.py are copied from that library's watercolor demo (MIT, Copyright (c) 2026 LemoLab).
+
+MUSIC (original score, played with sampled instruments)
+  Piano: "Salamander Grand Piano V3" by Alexander Holm, licensed under CC BY 3.0
+    (https://creativecommons.org/licenses/by/3.0/)
+  Strings (violins, violas, cellos) and flute: VS Chamber Orchestra: Community Edition
+    (Versilian Studios), CC0 1.0
+  Glockenspiel: Versilian Community Sample Library (Versilian Studios), CC0 1.0
+
+VOICE
+  Kokoro-82M text-to-speech (hexgrad/Kokoro-82M, Apache License 2.0), run locally with
+  kokoro-onnx (thewh1teagle/kokoro-onnx, MIT). Voice "af_bella".
+
+SOUND EFFECTS
+  Rain, drips, pencil, brush, mist, petals, birds and breeze: synthesised in mix.py (no samples).
+
+FONTS (SIL Open Font License 1.1, downloaded from Google Fonts by fetch_fonts.mjs into fonts/)
+  Cormorant Garamond — Christian Thalmann (Catharsis Fonts)
+  Caveat — Impallari Type
