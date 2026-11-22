@@ -19,6 +19,14 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 
 `openrouter/openrouter_chat.py` calls OpenRouter's chat API (default model `openrouter/free`, override with `--model`); it reads `OPENROUTER_API_KEY` from the environment or `openrouter/.env`.
 
+## Public APIs
+
+`public-apis/` is a vendored copy of public-apis/public-apis (MIT, commit 867085c): `README.md` is the categorised list of free public APIs, and `scripts/` holds its Python format and link validators. Their dependencies install into `public-apis/.venv` (gitignored):
+
+- Install: `cd public-apis && python3 -m venv .venv && .venv/bin/pip install -r scripts/requirements.txt`
+- Test: `cd public-apis/scripts && ../.venv/bin/python -m unittest discover tests`
+- Validate: `../.venv/bin/python -m validate.format ../README.md` and `../.venv/bin/python -m validate.links ../README.md` (the second makes network requests).
+
 ## Agent Skills (engineering workflows)
 
 `.claude/skills/` also holds the 25 engineering skills from addyosmani/agent-skills (MIT, v0.6.13; license in `.claude/references/AGENT-SKILLS-LICENSE`): spec, planning, TDD, code review, security, performance, shipping, etc. Start with `using-agent-skills` to pick one. Shared checklists live in `.claude/references/`, and the `code-reviewer`, `security-auditor`, `test-engineer` and `web-performance-auditor` subagents in `.claude/agents/`. The upstream slash commands and hooks were not vendored (`/review` clashes with the built-in); to get them, install the plugin with `/plugin marketplace add addyosmani/agent-skills` then `/plugin install agent-skills@addy-agent-skills`.
