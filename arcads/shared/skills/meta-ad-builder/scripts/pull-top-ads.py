@@ -36,9 +36,9 @@ INSIGHT_FIELDS = [
 
 
 def get_ad_insights(ad_account, token, date_preset):
-    url = f"{meta_api.BASE_URL}/{ad_account}/insights"
+    url = meta_api.graph_url(meta_api.normalize_ad_account(ad_account), "insights")
+    headers = meta_api.auth_headers(token)
     params = {
-        "access_token": token,
         "level": "ad",
         "fields": ",".join(INSIGHT_FIELDS),
         "date_preset": date_preset,
@@ -50,27 +50,30 @@ def get_ad_insights(ad_account, token, date_preset):
     }
     all_insights = []
     while url:
-        resp = requests.get(url, params=params, timeout=60)
+        resp = requests.get(url, headers=headers, params=params, timeout=60)
         data = resp.json()
         if "error" in data:
             print(f"API Error: {json.dumps(data['error'], indent=2)}")
             return []
         all_insights.extend(data.get("data", []))
         url = data.get("paging", {}).get("next")
+        if url and not meta_api.is_graph_url(url):
+            # Never send the token to a host other than graph.facebook.com.
+            print("  Stopping pagination: paging link is not a graph.facebook.com URL.")
+            break
         params = None  # the next URL already carries params
     return all_insights
 
 
 def get_ad_creative(ad_id, token):
-    url = f"{meta_api.BASE_URL}/{ad_id}"
+    url = meta_api.graph_url(meta_api.numeric_id(ad_id, "ad_id"))
     params = {
-        "access_token": token,
         # asset_feed_spec holds the rotating copy for multi-variant (TEXT_LIQUIDITY)
         # ads; body/title cover legacy single-copy ads. Do NOT request
         # link_description — it is not a valid creative field and errors the call.
         "fields": "creative{id,name,title,body,object_story_spec,asset_feed_spec}",
     }
-    resp = requests.get(url, params=params, timeout=60)
+    resp = requests.get(url, headers=meta_api.auth_headers(token), params=params, timeout=60)
     data = resp.json()
     if "error" in data:
         print(f"  creative fetch error for {ad_id}: {data['error'].get('message')}")
@@ -126,9 +129,7 @@ def main():
     args = parser.parse_args()
 
     token = meta_api.get_access_token()
-    ad_account = args.ad_account or meta_api.get_ad_account_id()
-    if not ad_account.startswith("act_"):
-        ad_account = f"act_{ad_account}"
+    ad_account = meta_api.normalize_ad_account(args.ad_account or meta_api.get_ad_account_id())
 
     print(f"Pulling ad insights from {ad_account} (date_preset={args.date_preset})...\n")
     insights = get_ad_insights(ad_account, token, args.date_preset)
