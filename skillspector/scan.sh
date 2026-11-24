@@ -2,10 +2,10 @@
 # Scan a repo, URL, archive or directory with NVIDIA SkillSpector before installing it.
 #
 #   bash skillspector/scan.sh <git-url | path | zip>           # static scan, records the verdict
-#   bash skillspector/scan.sh --accept <git-url | path | zip>  # user explicitly accepts a REJECT verdict
+#   bash skillspector/scan.sh --accept <git-url | path | zip>  # user explicitly accepts a DO_NOT_INSTALL verdict
 #
-# Exit codes: 0 = APPROVE or CAUTION (recorded as scanned), 1 = REJECT (not recorded), 2 = scan error.
-# Verdicts are logged to .claude/skillspector/scanned.log, which the install gate hook reads.
+# Exit codes: 0 = SAFE or CAUTION (recorded as scanned), 1 = DO_NOT_INSTALL (not recorded), 2 = scan error.
+# SAFE/CAUTION verdicts are logged to .claude/skillspector/scanned.log, which the install gate hook reads.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -67,8 +67,9 @@ if len(issues) > 10:
 PY
 
 STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-if [[ "$VERDICT" == "REJECT" && $ACCEPT -eq 0 ]]; then
-  echo "REJECT: do not install. Only rerun with --accept if the user explicitly accepts the risk." >&2
+# SkillSpector recommendations: SAFE, CAUTION, DO_NOT_INSTALL. Anything else fails closed.
+if [[ "$VERDICT" != "SAFE" && "$VERDICT" != "CAUTION" && $ACCEPT -eq 0 ]]; then
+  echo "$VERDICT: do not install. Only rerun with --accept if the user explicitly accepts the risk." >&2
   exit 1
 fi
 [[ $ACCEPT -eq 1 ]] && VERDICT="$VERDICT(user-accepted)"

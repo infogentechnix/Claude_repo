@@ -99,7 +99,7 @@ def main() -> int:
     if missing:
         deny("SkillSpector gate: scan before installing. Not yet scanned: " + ", ".join(missing) + ". "
              "Run `bash skillspector/scan.sh <repo-url>` for each, review the findings with the user "
-             "(see the skill-inspector skill), then retry. Do not install a REJECT verdict unless the "
+             "(see the skill-inspector skill), then retry. Do not install a DO_NOT_INSTALL verdict unless the "
              "user explicitly accepts it (`bash skillspector/scan.sh --accept <url>`).")
     return 0
 
