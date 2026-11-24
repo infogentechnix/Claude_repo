@@ -57,7 +57,13 @@ fi
 
 echo
 echo "Validating token against Graph API ${API_VERSION}..."
-resp="$(curl -s "https://graph.facebook.com/${API_VERSION}/me?fields=id,name&access_token=${META_ACCESS_TOKEN}")"
+if [[ ! "$API_VERSION" =~ ^v[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+  echo "  META_API_VERSION must look like v23.0, got: $API_VERSION"
+  exit 1
+fi
+# Pass the token as a header on stdin so it never appears in the URL or the process list.
+resp="$(printf 'Authorization: Bearer %s\n' "$META_ACCESS_TOKEN" \
+  | curl -s -H @- "https://graph.facebook.com/${API_VERSION}/me?fields=id,name")"
 if echo "$resp" | grep -q '"error"'; then
   echo "  TOKEN CHECK FAILED:"
   echo "$resp"

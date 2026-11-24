@@ -30,6 +30,9 @@ load_dotenv()
 import requests  # noqa: E402
 import meta_api  # noqa: E402
 
+MAX_RETRIES = 5        # consecutive 429/5xx responses before giving up
+MAX_RETRY_WAIT = 300   # cap on a server-supplied Retry-After, in seconds
+
 ARCHIVE_FIELDS = (
     "id,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url,"
     "page_id,page_name,publisher_platforms"
@@ -41,16 +44,19 @@ def resolve_page_id(identifier, token):
     identifier = str(identifier).strip()
     if identifier.isdigit():
         return identifier
-    resp = requests.get(f"{meta_api.BASE_URL}/{identifier}",
-                        params={"access_token": token, "fields": "id"}, timeout=15)
+    try:
+        url = meta_api.graph_url(identifier)  # rejects "/", "?", "..": no path injection
+    except ValueError:
+        return None  # not a valid page username; caller falls back to Ad Library search
+    resp = requests.get(url, headers=meta_api.auth_headers(token),
+                        params={"fields": "id"}, timeout=15)
     data = resp.json()
     return str(data["id"]) if "error" not in data and data.get("id") else None
 
 
 def resolve_via_search(identifier, token, countries, date_min, date_max):
     """Fallback: find the page_id by searching the Ad Library for the name."""
-    resp = requests.get(f"{meta_api.BASE_URL}/ads_archive", params={
-        "access_token": token,
+    resp = requests.get(meta_api.graph_url("ads_archive"), headers=meta_api.auth_headers(token), params={
         "search_terms": identifier,
         "ad_reached_countries": countries,
         "ad_delivery_date_min": date_min,
@@ -79,8 +85,7 @@ def resolve_via_search(identifier, token, countries, date_min, date_max):
 def fetch_ads_archive(page_id, token, countries, date_min, date_max,
                       limit, sort_by, active_status, media_type):
     params = {
-        "access_token": token,
-        "search_page_ids": page_id,
+        "search_page_ids": meta_api.numeric_id(page_id, "page_id"),
         "ad_reached_countries": countries,
         "ad_delivery_date_min": date_min,
         "ad_delivery_date_max": date_max,
@@ -91,19 +96,26 @@ def fetch_ads_archive(page_id, token, countries, date_min, date_max,
     }
     if media_type != "all":
         params["media_type"] = media_type
-    url = f"{meta_api.BASE_URL}/ads_archive"
+    url = meta_api.graph_url("ads_archive")
+    headers = meta_api.auth_headers(token)
     all_ads, seen = [], set()
+    retries = 0
     while True:
-        resp = requests.get(url, params=params, timeout=30)
-        if resp.status_code == 429:
-            wait = int(resp.headers.get("Retry-After", 60))
-            print(f"  Rate limited. Waiting {wait}s...")
+        resp = requests.get(url, headers=headers, params=params, timeout=30)
+        if resp.status_code == 429 or resp.status_code >= 500:
+            retries += 1
+            if retries > MAX_RETRIES:
+                return all_ads[:limit], f"Gave up after {MAX_RETRIES} retries (HTTP {resp.status_code})"
+            if resp.status_code == 429:
+                retry_after = resp.headers.get("Retry-After", "")
+                wait = min(int(retry_after), MAX_RETRY_WAIT) if retry_after.isdigit() else 60
+                print(f"  Rate limited. Waiting {wait}s...")
+            else:
+                wait = 5
+                print(f"  Server error {resp.status_code}. Retrying in {wait}s...")
             time.sleep(wait)
             continue
-        if resp.status_code >= 500:
-            print(f"  Server error {resp.status_code}. Retrying in 5s...")
-            time.sleep(5)
-            continue
+        retries = 0
         data = resp.json()
         if "error" in data:
             return all_ads, data["error"].get("message", "Unknown API error")
@@ -114,6 +126,9 @@ def fetch_ads_archive(page_id, token, countries, date_min, date_max,
         next_url = data.get("paging", {}).get("next")
         if not next_url or len(all_ads) >= limit:
             break
+        if not meta_api.is_graph_url(next_url):
+            # Never send the token to a host other than graph.facebook.com.
+            return all_ads[:limit], "Stopped: paging link was not a graph.facebook.com URL"
         url, params = next_url, None
     return all_ads[:limit], None
 

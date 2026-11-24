@@ -63,3 +63,14 @@ ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installe
   - Remove the `includeCoAuthoredBy: false` setting that the installer adds on every install, so commit attribution is unchanged.
   - The library copies of `kotlin-test`, `rust-test` and `update-docs` contain no literal example credentials.
 - **GateGuard:** the hook denies the first Edit/Write of each file in a session and asks for facts first; the retry goes through. To skip it, set `ECC_GATEGUARD=off` or add a glob to `GATEGUARD_EXEMPT_GLOBS`.
+
+## SkillSpector (scan before every install)
+
+SkillSpector 2.13.7 (NVIDIA/SkillSpector, Apache-2.0; license in `.claude/references/SKILLSPECTOR-LICENSE`) is the security scanner for agent skills and repos. The CLI is not vendored: a SessionStart hook installs it with `uv tool install --python 3.13 git+https://github.com/NVIDIA/SkillSpector.git` when missing.
+
+Rules:
+- Before installing, cloning or vendoring ANY repo, skill, plugin or package from a git URL, scan it first: `bash skillspector/scan.sh <repo-url | path | zip>` (static, `--no-llm`). Follow the `skill-inspector` skill (`.claude/skills/skill-inspector/`) to read the findings and give the user an SAFE / CAUTION / DO_NOT_INSTALL verdict before going ahead.
+- Do not install a DO_NOT_INSTALL verdict unless the user explicitly accepts it; then record it with `bash skillspector/scan.sh --accept <url>`. Tell the user about CAUTION findings before installing.
+- `.claude/hooks/skillspector-install-gate.py` (PreToolUse Bash) enforces this: it denies `git clone`, `git submodule add`, `pip/uv/pipx ... git+URL`, `npm/npx ... github:`, `plugin marketplace add`, and `curl | sh` until the repo appears in `.claude/skillspector/scanned.log` (gitignored, so each fresh session rescans). `SKILLSPECTOR_GATE=off` disables it.
+- The audit of everything installed before the gate existed is in `skillspector/AUDIT-2026-11-24.md`.
+- Large repos scan slowly; for a skill pack, scanning the skill subdirectory of a local copy is faster. LLM analysis is opt-in only: do not set `SKILLSPECTOR_PROVIDER` unless the user asks.
