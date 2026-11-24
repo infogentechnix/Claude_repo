@@ -3,3 +3,6 @@
 
 # graphify knowledge graph (rebuild with `graphify update .`)
 graphify-out/
+
+# SkillSpector scan log (per session; rescan before each install)
+.claude/skillspector/

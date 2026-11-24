@@ -26,6 +26,10 @@
           },
           {
             "type": "command",
+            "command": "command -v skillspector >/dev/null 2>&1 || uv tool install --python 3.13 git+https://github.com/NVIDIA/SkillSpector.git >/dev/null 2>&1 || true"
+          },
+          {
+            "type": "command",
             "command": "bash arcads/shared/scripts/sync-skill.sh >/dev/null 2>&1 || true"
           },
           {
@@ -58,6 +62,15 @@
       }
     ],
     "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/skillspector-install-gate.py\""
+          }
+        ]
+      },
       {
         "matcher": "Bash|Grep",
         "hooks": [
