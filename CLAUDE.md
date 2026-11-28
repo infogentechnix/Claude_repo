@@ -64,6 +64,10 @@ ECC 2.2.3 (affaan-m/ECC, MIT) is installed project-locally with its own installe
   - The library copies of `kotlin-test`, `rust-test` and `update-docs` contain no literal example credentials.
 - **GateGuard:** the hook denies the first Edit/Write of each file in a session and asks for facts first; the retry goes through. To skip it, set `ECC_GATEGUARD=off` or add a glob to `GATEGUARD_EXEMPT_GLOBS`.
 
+## emil-design-eng
+
+`.claude/skills/emil-design-eng/` is Emil Kowalski's design-engineering skill (emilkowalski/skills, MIT; license in `.claude/references/EMIL-SKILLS-LICENSE`): UI polish, animation easing and timing, springs, clip-path, gestures and reduced-motion. It is a single SKILL.md, copied from the repo's main branch on 2026-11-28 (SkillSpector: SAFE, 0 findings).
+
 ## SkillSpector (scan before every install)
 
 SkillSpector 2.13.7 (NVIDIA/SkillSpector, Apache-2.0; license in `.claude/references/SKILLSPECTOR-LICENSE`) is the security scanner for agent skills and repos. The CLI is not vendored: a SessionStart hook installs it with `uv tool install --python 3.13 git+https://github.com/NVIDIA/SkillSpector.git` when missing.
