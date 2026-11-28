@@ -19,6 +19,14 @@ The Arcads skill pack lives in `arcads/` (vendored from krusemediallc/arcads-cla
 
 `openrouter/openrouter_chat.py` calls OpenRouter's chat API (default model `openrouter/free`, override with `--model`); it reads `OPENROUTER_API_KEY` from the environment or `openrouter/.env`.
 
+## free-for-dev (free-tier services)
+
+`free-for-dev/` vendors the free-for.dev list (ripienaar/free-for-dev): about 1,400 SaaS, PaaS and IaaS services with free tiers, in 57 sections. Provenance, scan verdict and what was left out are in `free-for-dev/SOURCE.md`.
+
+- Whenever a task needs a third-party service, API or infrastructure (hosting, database, email, auth, CI, monitoring, storage, AI APIs, ...) and cost matters, follow the `free-for-dev` skill: search with `python3 free-for-dev/search.py <keywords>` (or `--section`, `--sections`) and offer free-tier options before paid ones.
+- Free tiers change; check the provider's pricing page before relying on a limit.
+- Refresh with `bash free-for-dev/update.sh`. Upstream accepts no AI-made contributions, so do not open PRs to it.
+
 ## Agent Skills (engineering workflows)
 
 `.claude/skills/` also holds the 25 engineering skills from addyosmani/agent-skills (MIT, v0.6.13; license in `.claude/references/AGENT-SKILLS-LICENSE`): spec, planning, TDD, code review, security, performance, shipping, etc. Start with `using-agent-skills` to pick one. Shared checklists live in `.claude/references/`, and the `code-reviewer`, `security-auditor`, `test-engineer` and `web-performance-auditor` subagents in `.claude/agents/`. The upstream slash commands and hooks were not vendored (`/review` clashes with the built-in); to get them, install the plugin with `/plugin marketplace add addyosmani/agent-skills` then `/plugin install agent-skills@addy-agent-skills`.
