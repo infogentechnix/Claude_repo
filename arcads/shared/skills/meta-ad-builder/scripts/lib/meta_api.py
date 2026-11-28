@@ -13,13 +13,57 @@ Credentials come from environment (load a .env first with python-dotenv):
 import base64
 import json
 import os
+import re
 import time
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import requests
 
-API_VERSION = os.getenv("META_API_VERSION", "v23.0")
-BASE_URL = f"https://graph.facebook.com/{API_VERSION}"
+GRAPH_HOST = "graph.facebook.com"
+_API_VERSION_RE = re.compile(r"v\d{1,3}\.\d{1,3}")
+_AD_ACCOUNT_RE = re.compile(r"(act_)?\d{1,32}")
+_NUMERIC_ID_RE = re.compile(r"\d{1,32}")
+# Graph path segments: numeric IDs, act_ IDs, page usernames (letters, digits, dots,
+# underscores) and edge names. Rejects "/", "?", "#", "%" and dot-only segments.
+_SEGMENT_RE = re.compile(r"(?!\.+$)[A-Za-z0-9_.]{1,100}")
+DEFAULT_TIMEOUT = 60
+
+
+def _api_version():
+    version = os.getenv("META_API_VERSION", "v23.0")
+    if not _API_VERSION_RE.fullmatch(version):
+        raise RuntimeError(f"META_API_VERSION must look like v23.0, got {version!r}")
+    return version
+
+
+API_VERSION = _api_version()
+BASE_URL = f"https://{GRAPH_HOST}/{API_VERSION}"
+
+
+def graph_url(*segments):
+    """Build a Graph API URL, refusing segments that could change the path or host."""
+    for seg in segments:
+        if not _SEGMENT_RE.fullmatch(str(seg)):
+            raise ValueError(f"Invalid Graph API path segment: {str(seg)[:60]!r}")
+    return "/".join([BASE_URL, *map(str, segments)])
+
+
+def is_graph_url(url):
+    """True only for https URLs on graph.facebook.com (e.g. API paging links)."""
+    try:
+        parts = urlsplit(str(url))
+        port = parts.port
+    except ValueError:
+        return False
+    return parts.scheme == "https" and parts.hostname == GRAPH_HOST and port in (None, 443)
+
+
+def numeric_id(value, label="ID"):
+    value = str(value).strip()
+    if not _NUMERIC_ID_RE.fullmatch(value):
+        raise ValueError(f"{label} must be numeric, got {value[:60]!r}")
+    return value
 
 
 def get_access_token():
@@ -29,11 +73,23 @@ def get_access_token():
     return token
 
 
+def auth_headers(token=None):
+    """Send the token in the Authorization header, never in URLs (which get logged)."""
+    return {"Authorization": f"Bearer {token or get_access_token()}"}
+
+
+def normalize_ad_account(acct):
+    acct = str(acct).strip()
+    if not _AD_ACCOUNT_RE.fullmatch(acct):
+        raise ValueError(f"Ad account ID must be digits or act_<digits>, got {acct[:60]!r}")
+    return acct if acct.startswith("act_") else f"act_{acct}"
+
+
 def get_ad_account_id():
     acct = os.getenv("META_AD_ACCOUNT_ID")
     if not acct:
         raise RuntimeError("META_AD_ACCOUNT_ID not set — see check-meta-env.sh")
-    return acct if acct.startswith("act_") else f"act_{acct}"
+    return normalize_ad_account(acct)
 
 
 def resolve_output_dir(run_slug):
@@ -58,11 +114,11 @@ def upload_image(path, name=None):
         return None
     with open(path, "rb") as f:
         img_b64 = base64.b64encode(f.read()).decode("utf-8")
-    url = f"{BASE_URL}/{get_ad_account_id()}/adimages"
+    url = graph_url(get_ad_account_id(), "adimages")
     resp = requests.post(
         url,
+        headers=auth_headers(),
         data={
-            "access_token": get_access_token(),
             "bytes": img_b64,
             "name": (name or path.stem)[:90],
         },
@@ -85,11 +141,11 @@ def upload_video(path):
         return None
     size_mb = path.stat().st_size / (1024 * 1024)
     print(f"  Uploading {path.name} ({size_mb:.1f} MB)...")
-    url = f"{BASE_URL}/{get_ad_account_id()}/advideos"
+    url = graph_url(get_ad_account_id(), "advideos")
     with open(path, "rb") as f:
         files = {"source": (path.name, f, "video/mp4")}
-        data = {"access_token": get_access_token(), "name": path.name}
-        resp = requests.post(url, data=data, files=files, timeout=900)
+        data = {"name": path.name}
+        resp = requests.post(url, headers=auth_headers(), data=data, files=files, timeout=900)
     if resp.status_code != 200:
         print(f"  ERROR HTTP {resp.status_code}: {resp.text[:500]}")
         return None
@@ -109,13 +165,12 @@ def wait_for_video_processing(video_id, max_wait=360):
     returned thumbnail is required by video_data.image_url.
     """
     print("  Waiting for video processing...")
-    url = f"{BASE_URL}/{video_id}"
+    url = graph_url(numeric_id(video_id, "video_id"))
     for attempt in range(max_wait // 10):
         time.sleep(10)
-        resp = requests.get(url, params={
-            "access_token": get_access_token(),
+        resp = requests.get(url, headers=auth_headers(), params={
             "fields": "status,picture,thumbnails{uri,is_preferred}",
-        })
+        }, timeout=DEFAULT_TIMEOUT)
         data = resp.json()
         if "error" in data:
             print(f"    Poll error: {data['error'].get('message', '?')}")
@@ -130,7 +185,8 @@ def wait_for_video_processing(video_id, max_wait=360):
             preferred = next((t for t in thumbs if t.get("is_preferred")), None)
             return (preferred or {}).get("uri") or data.get("picture")
     print("  WARNING: processing timed out. Falling back to picture.")
-    resp = requests.get(url, params={"access_token": get_access_token(), "fields": "picture"})
+    resp = requests.get(url, headers=auth_headers(), params={"fields": "picture"},
+                        timeout=DEFAULT_TIMEOUT)
     return resp.json().get("picture")
 
 
@@ -140,10 +196,9 @@ def create_ad(adset_id, ad_name, creative, status="PAUSED", pixel_id=None):
     status defaults to PAUSED — the skill never launches spending ads
     automatically. The user reviews and un-pauses in Ads Manager.
     """
-    url = f"{BASE_URL}/{get_ad_account_id()}/ads"
+    url = graph_url(get_ad_account_id(), "ads")
     payload = {
-        "access_token": get_access_token(),
-        "adset_id": adset_id,
+        "adset_id": numeric_id(adset_id, "adset_id"),
         "name": ad_name,
         "status": status,
         "creative": json.dumps(creative),
@@ -155,7 +210,7 @@ def create_ad(adset_id, ad_name, creative, status="PAUSED", pixel_id=None):
         }])
 
     for attempt in range(1, 5):
-        resp = requests.post(url, data=payload)
+        resp = requests.post(url, headers=auth_headers(), data=payload, timeout=DEFAULT_TIMEOUT)
         data = resp.json()
         if "error" not in data:
             ad_id = data["id"]
