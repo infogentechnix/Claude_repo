@@ -82,3 +82,7 @@ Rules:
 - `.claude/hooks/skillspector-install-gate.py` (PreToolUse Bash) enforces this: it denies `git clone`, `git submodule add`, `pip/uv/pipx ... git+URL`, `npm/npx ... github:`, `plugin marketplace add`, and `curl | sh` until the repo appears in `.claude/skillspector/scanned.log` (gitignored, so each fresh session rescans). `SKILLSPECTOR_GATE=off` disables it.
 - The audit of everything installed before the gate existed is in `skillspector/AUDIT-2026-11-24.md`.
 - Large repos scan slowly; for a skill pack, scanning the skill subdirectory of a local copy is faster. LLM analysis is opt-in only: do not set `SKILLSPECTOR_PROVIDER` unless the user asks.
+
+## Karpathy guidelines
+
+`.claude/skills/karpathy-guidelines/` is the one skill from the `andrej-karpathy-skills` plugin (multica-ai/andrej-karpathy-skills, MIT): four rules against common LLM coding mistakes (think before coding, simplicity first, surgical changes, goal-driven execution). `/plugin` is unavailable here, so it is vendored instead; provenance and scan verdict are in its `SOURCE.md`.
